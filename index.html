@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S&A Learning Hub</title>
+<meta name="description" content="One home for ReadQuest, MathQuest Jungle, and Physics Quest.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0f1220; --card:#181c2e; --text:#f1f3fb; --muted:#a9adc4;
+    --read:#ff8fa3; --math:#6EEB83; --physics:#2D9CFF;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; min-height:100vh; background:var(--bg); color:var(--text);
+    font-family:'Inter',system-ui,sans-serif;
+    display:flex; flex-direction:column; align-items:center;
+    padding:56px 20px;
+  }
+  h1{
+    font-family:'Poppins',sans-serif; font-size:clamp(28px,5vw,44px);
+    margin:0 0 8px; text-align:center;
+  }
+  p.sub{ color:var(--muted); margin:0 0 40px; text-align:center; max-width:520px; }
+  .grid{
+    display:grid; gap:24px; width:100%; max-width:1000px;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  }
+  a.card{
+    display:block; background:var(--card); border-radius:18px; padding:28px;
+    text-decoration:none; color:var(--text);
+    border:1px solid rgba(255,255,255,.08);
+    transition:transform .15s ease, box-shadow .15s ease;
+    position:relative; overflow:hidden;
+  }
+  a.card:hover{ transform:translateY(-4px); box-shadow:0 12px 28px rgba(0,0,0,.35); }
+  a.card::before{
+    content:""; position:absolute; inset:0 0 auto 0; height:6px;
+  }
+  .card.read::before{ background:var(--read); }
+  .card.math::before{ background:var(--math); }
+  .card.physics::before{ background:var(--physics); }
+  .card h2{ font-family:'Poppins',sans-serif; font-size:22px; margin:8px 0 10px; }
+  .card p{ color:var(--muted); font-size:14px; line-height:1.5; margin:0; }
+  .tag{
+    display:inline-block; font-size:12px; font-weight:600; letter-spacing:.04em;
+    text-transform:uppercase; padding:4px 10px; border-radius:999px;
+    margin-bottom:6px;
+  }
+  .card.read .tag{ background:rgba(255,143,163,.15); color:var(--read); }
+  .card.math .tag{ background:rgba(110,235,131,.15); color:var(--math); }
+  .card.physics .tag{ background:rgba(45,156,255,.15); color:var(--physics); }
+  footer{ margin-top:56px; color:var(--muted); font-size:13px; }
+</style>
+</head>
+<body>
+  <h1>S&amp;A Learning Hub</h1>
+  <p class="sub">Pick an adventure. Each one opens as its own app — use your browser's back button to return here.</p>
+
+  <div class="grid">
+    <a class="card read" href="read-quest/index.html">
+      <span class="tag">Reading</span>
+      <h2>ReadQuest</h2>
+      <p>An interactive reading adventure that builds comprehension and vocabulary skills through story-driven quests.</p>
+    </a>
+
+    <a class="card math" href="math-jungle/index.html">
+      <span class="tag">Math</span>
+      <h2>MathQuest Jungle</h2>
+      <p>A jungle-themed math academy spanning kindergarten through 6th grade, with badges and progress tracking.</p>
+    </a>
+
+    <a class="card physics" href="physics-quest/index.html">
+      <span class="tag">Science</span>
+      <h2>Physics Quest</h2>
+      <p>An interactive academy teaching high school physics foundations through simulations and games.</p>
+    </a>
+  </div>
+
+  <footer>S&amp;A Learning</footer>
+</body>
+</html>

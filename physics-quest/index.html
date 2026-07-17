@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<meta name="description" content="Physics Quest — an interactive academy that teaches high school physics foundations as a game.">
+<title>Physics Quest — Master the science before school begins</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;800&family=Montserrat:wght@600;700&family=Inter:wght@400;500;600&family=Nunito+Sans:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<canvas id="confetti"></canvas>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<radialGradient id="pq-bronze-bezel" cx="35%" cy="28%" r="82%"><stop offset="0" stop-color="#ffe6c6"/><stop offset="0.5" stop-color="#cf9457"/><stop offset="1" stop-color="#6e3d18"/></radialGradient>
+<radialGradient id="pq-bronze-face" cx="38%" cy="30%" r="80%"><stop offset="0" stop-color="#ffd9ad"/><stop offset="0.55" stop-color="#c67a3c"/><stop offset="1" stop-color="#6b3f18"/></radialGradient>
+<radialGradient id="pq-silver-bezel" cx="35%" cy="28%" r="82%"><stop offset="0" stop-color="#ffffff"/><stop offset="0.5" stop-color="#c2d0e2"/><stop offset="1" stop-color="#5c6f86"/></radialGradient>
+<radialGradient id="pq-silver-face" cx="38%" cy="30%" r="80%"><stop offset="0" stop-color="#f4f8ff"/><stop offset="0.55" stop-color="#b8c8dc"/><stop offset="1" stop-color="#6a7f96"/></radialGradient>
+<radialGradient id="pq-gold-bezel" cx="35%" cy="28%" r="82%"><stop offset="0" stop-color="#fff6cf"/><stop offset="0.5" stop-color="#e9b84a"/><stop offset="1" stop-color="#8a5f16"/></radialGradient>
+<radialGradient id="pq-gold-face" cx="38%" cy="30%" r="80%"><stop offset="0" stop-color="#fff3c4"/><stop offset="0.55" stop-color="#ffd76a"/><stop offset="1" stop-color="#b9822a"/></radialGradient>
+<linearGradient id="pq-holo" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff9ec4"/><stop offset="0.25" stop-color="#c58bff"/><stop offset="0.5" stop-color="#2D9CFF"/><stop offset="0.7" stop-color="#2EC4B6"/><stop offset="0.85" stop-color="#6EEB83"/><stop offset="1" stop-color="#FFB84D"/></linearGradient>
+</defs></svg>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <button class="brand" onclick="go('home')" aria-label="Physics Quest home">
+      <svg class="logo" viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2D9CFF"/><stop offset="1" stop-color="#2EC4B6"/></linearGradient></defs><circle cx="24" cy="24" r="22" fill="url(#lg)"/><g fill="none" stroke="#081B33" stroke-width="2.4" opacity=".92"><ellipse cx="24" cy="24" rx="20" ry="8"/><ellipse cx="24" cy="24" rx="20" ry="8" transform="rotate(60 24 24)"/><ellipse cx="24" cy="24" rx="20" ry="8" transform="rotate(120 24 24)"/></g><circle cx="24" cy="24" r="4" fill="#FFB84D"/></svg>
+      <b>Physics<span>Quest</span></b>
+    </button>
+    <div class="hp-mini">
+      <div class="xp-mini"><div class="bar"><i id="xpMiniBar" style="width:0%"></i></div></div>
+      <span class="lvl-chip" id="lvlChip">Lv 1</span>
+    </div>
+    <button class="icon-btn" id="soundBtn" onclick="toggleSound()" title="Toggle sound" aria-label="Toggle sound"></button>
+    <button class="icon-btn menu-toggle" onclick="document.querySelector('nav.mainnav').classList.toggle('open')" aria-label="Menu">☰</button>
+  </div>
+  <nav class="mainnav" id="nav"></nav>
+</header>
+
+<main id="app"></main>
+
+<div id="toast"><span class="emo"></span><span id="toastMsg"></span></div>
+
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modalBox"></div>
+</div>
+
+<script src="content.js"></script>
+<script src="simulators.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
