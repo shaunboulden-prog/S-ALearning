@@ -720,30 +720,30 @@ const NAMES = ["Maya","Leo","Aisha","Diego","Mia","Sam","Priya","Noah","Zoe","Ko
 const COLORS = ["red","blue","golden","green","silver","purple","orange","emerald"];
 const OBJECTS = ["lantern","map","feather","compass","key","notebook","kite","gemstone","scarf","whistle","medal","seashell","telescope","music box"];
 const COMPANIONS = [
-  {t:"her best friend", n:true},{t:"his little brother", n:true},{t:"a clever fox named Ash", n:false},
-  {t:"a loyal dog named Pepper", n:false},{t:"a curious kitten named Sesame", n:false},
-  {t:"her grandmother", n:false},{t:"a small robot named Bolt", n:false},{t:"a wise old owl", n:false},
-  {t:"her cousin", n:true},{t:"a talking parrot named Kiwi", n:false}
+  pn=>({t:`${pn.p} best friend`, n:true}), pn=>({t:`${pn.p} little brother`, n:true}), ()=>({t:"a clever fox named Ash", n:false}),
+  ()=>({t:"a loyal dog named Pepper", n:false}), ()=>({t:"a curious kitten named Sesame", n:false}),
+  pn=>({t:`${pn.p} grandmother`, n:false}), ()=>({t:"a small robot named Bolt", n:false}), ()=>({t:"a wise old owl", n:false}),
+  pn=>({t:`${pn.p} cousin`, n:true}), ()=>({t:"a talking parrot named Kiwi", n:false})
 ];
 const GOALS = [
-  {short:"help her family", why:"her family was counting on her"},
-  {short:"win the big contest", why:"she had trained for it all year"},
-  {short:"find the way home", why:"the path had disappeared behind her"},
-  {short:"save the village", why:"everyone she loved lived there"},
-  {short:"keep an important promise", why:"she had given her word"},
-  {short:"prove she was brave", why:"others had doubted her"},
-  {short:"solve the mystery", why:"the questions kept her awake at night"},
-  {short:"protect a friend", why:"her friend could not do it alone"}
+  pn=>({short:`help ${pn.p} family`, why:`${pn.p} family was counting on ${pn.o}`}),
+  pn=>({short:"win the big contest", why:`${pn.s} had trained for it all year`}),
+  pn=>({short:"find the way home", why:`the path had disappeared behind ${pn.o}`}),
+  pn=>({short:"save the village", why:`everyone ${pn.s} loved lived there`}),
+  pn=>({short:"keep an important promise", why:`${pn.s} had given ${pn.p} word`}),
+  pn=>({short:`prove ${pn.s} was brave`, why:`others had doubted ${pn.o}`}),
+  pn=>({short:"solve the mystery", why:`the questions kept ${pn.o} awake at night`}),
+  pn=>({short:"protect a friend", why:`${pn.p} friend could not do it alone`})
 ];
 const OBSTACLES = ["a sudden storm","a locked stone gate","a tricky riddle","a rushing river","a thick grey fog","a broken rope bridge","a towering wall of thorns","a maze of tunnels","a long cold night","a stubborn machine"];
 const HELPERS = [
-  {t:"a kind stranger", how:"who shared a helpful secret"},
-  {t:"an old map", how:"that revealed a hidden path"},
-  {t:"her own courage", how:"that she had doubted until now"},
-  {t:"a clever plan", how:"that used everything she had learned"},
-  {t:"a helpful neighbor", how:"who remembered an old story"},
-  {t:"a hidden tunnel", how:"that no one else had noticed"},
-  {t:"teamwork", how:"that turned two heads into one idea"}
+  ()=>({t:"a kind stranger", how:"who shared a helpful secret"}),
+  ()=>({t:"an old map", how:"that revealed a hidden path"}),
+  pn=>({t:`${pn.p} own courage`, how:`that ${pn.s} had doubted until now`}),
+  pn=>({t:"a clever plan", how:`that used everything ${pn.s} had learned`}),
+  ()=>({t:"a helpful neighbor", how:"who remembered an old story"}),
+  ()=>({t:"a hidden tunnel", how:"that no one else had noticed"}),
+  ()=>({t:"teamwork", how:"that turned two heads into one idea"})
 ];
 const RESOLUTIONS = [
   "shared the reward with everyone in the village",
@@ -799,13 +799,13 @@ function buildFacts(grade){
   const gd = GENRE_DATA[genre];
   const protagonist = rand(NAMES);
   const she = Math.random()<.5 ? {s:"she",o:"her",p:"her"} : {s:"he",o:"him",p:"his"};
-  const companion = fillCompanion(rand(COMPANIONS), protagonist);
+  const companion = fillCompanion(rand(COMPANIONS)(she), protagonist);
   const setting = rand(gd.settings);
   const objName = rand(OBJECTS);
   const objColor = rand(COLORS);
-  const goal = rand(GOALS);
+  const goal = rand(GOALS)(she);
   const obstacle = rand(OBSTACLES);
-  const helper = rand(HELPERS);
+  const helper = rand(HELPERS)(she);
   const resolution = rand(RESOLUTIONS);
   const theme = rand(THEMES);
   const scenes = gd.scenes;
@@ -837,7 +837,7 @@ function generateStory(grade){
   }));
   push("setup", sentence(b,{
     0:[`With ${pn.o} was ${f.companion}. They did everything together.`],
-    1:[`${cap(pn.s)} was almost never alone. ${f.companion} went everywhere with ${pn.o}, and the two of them made a good team.`],
+    1:[`${cap(pn.s)} was almost never alone. ${cap(f.companion)} went everywhere with ${pn.o}, and the two of them made a good team.`],
     2:[`${cap(pn.s)} rarely wandered alone. ${cap(f.companion)} was ${pn.p} steady companion, and together the two of them had a talent for turning a plain afternoon into something worth remembering.`],
     4:[`${cap(pn.s)} was seldom without ${f.companion}, ${pn.p} truest companion, the one who could be relied on when a clever idea or a steady nerve was required. Between them there existed the easy shorthand of people who have shared a hundred small adventures and trust one another completely.`]
   }));
@@ -1048,10 +1048,10 @@ const CURATED = {
       ]}
     ],
     questions:[
-      {level:"Remember", q:"Where was the silver lantern kept?", options:["On the second shelf of the hall closet","Under the kitchen sink","In the family car","Next to Priya's bed"], correct:0, hint:"Priya remembered the exact spot where they always kept it."},
-      {level:"Understand", q:"Why did Priya decide to go up the stairs instead of her grandfather?", options:["His knee was hurting, so the climb would be hard for him","She wanted to prove she was faster than him","He was afraid of the silver lantern","He told her he was too tired to move"], correct:0, hint:"Notice what Priya heard and knew about her grandfather when he stood up."},
+      {level:"Remember", q:"What did Priya's grandfather say caused the power to go out?", options:["A storm knocked down a power line","Someone forgot to pay the electric bill","A fuse blew in the kitchen","The neighbors accidentally turned off their power"], correct:0, hint:"Listen to what her grandfather said right after the lights went out."},
+      {level:"Understand", q:"Why did Priya know exactly where to find the lantern in the dark?", options:["She and her grandfather had agreed to always keep it on the same shelf in the hall closet","Her grandfather shouted directions to her from downstairs","She had a flashlight to help her search for it","She guessed and got lucky"], correct:0, hint:"Think about the promise Priya remembered making with her grandfather last month."},
       {level:"Apply", q:"Based on how Priya solved her problem, what is the best thing for a family to do BEFORE a storm?", options:["Keep a working lantern in a spot everyone knows about","Wait until the lights go out to search for supplies","Unplug the refrigerator every night","Sit together on the dark stairs"], correct:0, hint:"Think about what helped Priya find the lantern so quickly and calmly."},
-      {level:"Analyze", q:"How does Priya CHANGE from the beginning of the story to the end?", options:["She moves from feeling frightened to feeling brave and capable","She becomes much more afraid of every storm","She stops trusting her grandfather's advice","She stays exactly the same the whole time"], correct:0, hint:"Compare how Priya feels on the dark stairs with how she feels at the very end."}
+      {level:"Analyze", q:"Why did counting each step help Priya as she climbed the dark stairs?", options:["It helped her know exactly where she was, even though she couldn't see","It made the stairs shorter","It helped her grandfather hear her from downstairs","It made the lantern turn on by itself"], correct:0, hint:"Notice why her grandfather had once taught her to do this."}
     ]
   },
 
@@ -1114,7 +1114,7 @@ const CURATED = {
       {level:"Understand", q:"Why were the people on the fishing boat in such danger?", options:["A deadly current was dragging them toward the rocks, and they could not find the safe channel","Their boat had caught fire in the storm","They had run out of food and water","Another ship was chasing them"], correct:0, hint:"Consider what Elena noticed about where the boat was and what it could not see."},
       {level:"Apply", q:"Elena's dilemma is a conflict between two duties. Which real-life situation is MOST similar?", options:["A lifeguard deciding whether to leave her post to reach one swimmer, risking everyone else on the beach","A student choosing which novel to read for fun","A chef deciding what to cook for dinner","A traveler picking a seat on a crowded train"], correct:0, hint:"Look for a choice where helping one group means putting another at risk."},
       {level:"Analyze", q:"What does Elena realize her father TRULY meant by \"sailors are counting on it\"?", options:["That responsibility is a promise to help others, and the light is only one way of keeping it","That the lighthouse is worth more than any single person","That she must never, for any reason, leave the tower","That sailors are careless and ungrateful people"], correct:0, hint:"Notice what she suddenly understands about the deeper meaning of his words."},
-      {level:"Evaluate", q:"Was Elena's choice to wedge the light and row out a responsible one? Which answer BEST evaluates her decision using the story?", options:["It was responsible, because she found a way to protect both the boat and the light while accepting real risk for others","It was wrong, because rules should never be broken for any reason","It was reckless, because she had nothing at all to gain","It was responsible only because she happened to get lucky"], correct:0, hint:"Weigh both the risk she took AND the effort she made to honor both duties."},
+      {level:"Evaluate", q:"At the moment she left the tower, was Elena's decision a responsible one? Which answer BEST evaluates her choice using the story so far?", options:["Yes — she used a trick her father had shown her to keep the light running before she took any real risk for the boat","No — she should have stayed in the tower no matter what happened to the boat","No — leaving a lighthouse unattended is always reckless, no matter the reason","Yes — but only because rowing out into the storm required no real risk"], correct:0, hint:"Notice what Elena did to the light's mechanism with the iron bar BEFORE she ever left the tower."},
       {level:"Evaluate", q:"Which statement BEST assesses how the author builds tension during the rescue (pages 5–6)?", options:["By slowing the action into small, desperate steps, the author makes the outcome feel uncertain and hard-won","By telling the reader at once that everyone survives, the author keeps it relaxing","By focusing on unrelated background details, the author distracts from the danger","By removing all obstacles, the author makes the rescue feel effortless"], correct:0, hint:"Consider how phrases like \"a boat-length at a time\" and \"inch by inch\" shape the reader's experience."},
       {level:"Create", q:"If you were to write the next chapter, which continuation would BEST extend the story's central theme?", options:["Elena faces another dangerous night alone and must again answer, while frightened, what responsibility requires of her","Elena abandons the lighthouse forever and moves far away","Elena becomes famous and never thinks about the light again","The lighthouse is torn down and quickly forgotten by everyone"], correct:0, hint:"Choose the continuation that carries forward the father's idea that responsibility is a question answered again and again."}
     ]
@@ -2426,16 +2426,10 @@ function startStory(gid, opts){
   opts = opts || {};
   S.grade=gradeById(gid);
   let story;
-  // Use the hand-written curated story when this grade has one (unless the
-  // player asked for a fresh procedural story via "New Story").
-  if(CURATED[gid] && !opts.forceProcedural){
-    story = prepareCurated(S.grade);
-  }
-  if(!story){
-    // generate an original, non-repeating procedural story
-    let guard=0;
-    do{ story=generateStory(S.grade); guard++; }while(story.facts.id===(S._lastId)&&guard<5);
-  }
+  // Every grade — including 2nd/4th/10th, which used to default to a fixed
+  // curated story — gets a fresh, non-repeating procedural story each visit.
+  let guard=0;
+  do{ story=generateStory(S.grade); guard++; }while(story.facts.id===(S._lastId)&&guard<5);
   S._lastId=story.facts.id;
   S.story=story;
   S.flow=buildFlow(story,S.grade);
