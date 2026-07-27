@@ -66,7 +66,7 @@ button:focus-visible,[tabindex]:focus-visible,a:focus-visible{
 }
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
 .ic{display:inline-block;width:1.15em;height:1.15em;vertical-align:-.2em;flex:0 0 auto}
-.iconbtn .ic,.nav-btn .ic,.chip .ic,.shop-tab .ic{width:1.15em;height:1.15em}
+.iconbtn .ic,.nav-btn .ic,.chip .ic,.shop-tab .ic,.teacher-corner-btn .ic{width:1.15em;height:1.15em}
 .btn-primary .ic,.btn-ghost .ic{width:1.1em;height:1.1em;vertical-align:-.14em}
 .hud .stat .ic{width:1.25em;height:1.25em}
 .bloom-badge .ic{width:1.15em;height:1.15em;vertical-align:-.22em}
@@ -111,6 +111,15 @@ button:focus-visible,[tabindex]:focus-visible,a:focus-visible{
 .coinpill{display:inline-flex;align-items:center;gap:5px;background:var(--gold-l);border:1.5px solid var(--gold);color:#92600a;border-radius:12px;padding:9px 13px;font-family:var(--font-title);font-weight:700;font-size:14px;box-shadow:var(--shadow)}
 .coinpill b{font-size:15px}
 .iconbtn.room-btn{background:linear-gradient(135deg,#8B5CF6,#EC4899);color:#fff;border-color:transparent}
+.teacher-corner-btn{
+  position:fixed;top:12px;right:14px;z-index:130;
+  width:32px;height:32px;border-radius:50%;padding:0;
+  background:var(--card);border:1.5px solid var(--line);color:var(--text);
+  display:grid;place-items:center;box-shadow:var(--shadow);
+  opacity:.32;transition:opacity .15s var(--ease),transform .15s var(--ease);
+}
+.teacher-corner-btn:hover,.teacher-corner-btn:focus-visible{opacity:1;transform:scale(1.08)}
+@media(max-width:620px){.teacher-corner-btn{width:28px;height:28px;top:8px;right:8px}}
 body.hc .coinpill{background:#1a1405;color:var(--gold)}
 
 /* ===== My Room stage (illustrated room shell + draggable items) ===== */
@@ -406,6 +415,29 @@ body.hc .lvlbox{background:#1a1405}body.hc .lvlname,body.hc .lvlxp{color:var(--g
 .wordchip.chip-wrong{background:var(--red-l);border-color:var(--red);animation:shake .45s}
 .wordchip:disabled{cursor:default}
 .wc-period{font-family:var(--font-head);font-weight:700;font-size:calc(22px*var(--readscale));margin-left:-4px}
+.type-row{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:16px 0 6px}
+.type-input{
+  font-family:var(--font-head);font-weight:700;font-size:calc(19px*var(--readscale));
+  background:var(--card);border:2px solid var(--line);border-radius:14px;padding:12px 16px;
+  color:var(--text);box-shadow:var(--shadow);min-width:220px;flex:1 1 220px;transition:border-color .13s;
+}
+.type-input:focus{outline:none;border-color:var(--blue)}
+.type-input.wrong{border-color:var(--red);animation:shake .45s}
+.type-input.correct{border-color:var(--green);background:var(--green-l)}
+.type-input:disabled{cursor:default}
+.match-wrap{display:grid;grid-template-columns:1fr 1fr;gap:14px 20px;margin:16px 0 6px}
+@media(max-width:620px){.match-wrap{grid-template-columns:1fr}}
+.match-col{display:flex;flex-direction:column;gap:10px}
+.match-item{
+  text-align:left;font-family:var(--font-head);font-weight:600;font-size:calc(15.5px*var(--readscale));
+  background:var(--card);border:2px solid var(--line);border-radius:13px;padding:12px 14px;
+  color:var(--text);box-shadow:var(--shadow);transition:transform .13s var(--ease),border-color .13s,background .13s;
+}
+.match-item:hover:not(:disabled){transform:translateY(-2px);border-color:var(--teal)}
+.match-item.selected{border-color:var(--blue);background:var(--blue-l)}
+.match-item.matched{background:var(--green-l);border-color:var(--green);color:#166534}
+.match-item.wrong{background:var(--red-l);border-color:var(--red);animation:shake .45s}
+.match-item:disabled{cursor:default}
 .checkpoint-label{font-family:var(--font-head);font-weight:800;color:var(--muted);font-size:12.5px;margin-left:10px}
 .q-text{font-family:var(--font-head);font-weight:700;font-size:calc(23px*var(--readscale));line-height:1.4;margin:16px 0 20px}
 .options{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -537,6 +569,7 @@ footer.credit{text-align:center;color:var(--muted);font-size:12px;margin-top:30p
 <div id="topprogress" role="progressbar" aria-label="Overall progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="topprogress-fill"></div><div id="topprogress-runner"><span data-ic="book"></span></div></div>
 <canvas id="confetti"></canvas>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<button class="teacher-corner-btn" id="btn-teacher" aria-haspopup="dialog" aria-label="Teacher Mode"><span data-ic="apple"></span></button>
 
 <div id="app">
   <div class="topbar">
@@ -552,7 +585,6 @@ footer.credit{text-align:center;color:var(--muted);font-size:12px;margin-top:30p
     <div class="toolbtns" id="toolbtns">
       <span class="coinpill" id="coinpill" title="Coins to spend in My Room"><span data-ic="coin"></span> <b id="coincount">0</b></span>
       <button class="iconbtn room-btn" id="btn-room"><span data-ic="couch"></span> My Room</button>
-      <button class="iconbtn" id="btn-teacher" aria-haspopup="dialog"><span data-ic="apple"></span> Teacher Mode</button>
       <button class="iconbtn" id="btn-narrate" aria-pressed="false" title="Read the page aloud"><span data-ic="sound"></span> Narrate</button>
       <button class="iconbtn" id="btn-music" aria-pressed="false" title="Background music"><span data-ic="music"></span> Music</button>
       <button class="iconbtn" id="btn-mute" aria-pressed="false" title="Mute all sounds"><span data-ic="sound"></span> Sound</button>
@@ -842,13 +874,15 @@ function generateStory(grade){
   const floor = grade.wmin;
   let order = shuffle(JOURNEY.map((_,i)=>i));
   let oi=0, guardR=0;
+  const journeyBeatName = idx => idx===0 ? "obstacle" : idx===4 ? "helper" : "rising";
   while(guardR<80){
     guardR++;
     const now = wc();
     // stop once adding another beat would push us past the target (leaving room for reserve)
     if(now >= target - reserve && now >= floor - reserve) break;
     if(oi>=order.length){ order = shuffle(order); oi=0; }
-    push("rising", sentence(b, JOURNEY[order[oi]])); oi++;
+    const jidx = order[oi];
+    push(journeyBeatName(jidx), sentence(b, JOURNEY[jidx])); oi++;
   }
 
   // ---- CLIMAX ----
@@ -923,7 +957,7 @@ function paginate(paras, targetPages, f){
     else if(beats.includes("resolution")) scene=f.scenes[0];
     else if(beats.includes("conflict")) scene=f.scenes[1];
     else scene=f.scenes[pi%f.scenes.length];
-    pages.push({eyebrow:eyebrows[Math.min(pi,eyebrows.length-1)], paragraphs:chunk.map(c=>c.text), scene});
+    pages.push({eyebrow:eyebrows[Math.min(pi,eyebrows.length-1)], paragraphs:chunk.map(c=>c.text), scene, beats});
   }
   return pages;
 }
@@ -1119,8 +1153,16 @@ function craft(list){ // list of {t,correct?}
   const s = shuffle(list);
   return {options:s.map(o=>o.t), correct:s.findIndex(o=>o.correct)};
 }
+// Re-shuffles a fixed (e.g. hand-curated) question's options without mutating the source object.
+function shuffleQuestionOptions(q){
+  const correctText = q.options[q.correct];
+  const options = shuffle(q.options);
+  return {...q, options, correct:options.indexOf(correctText)};
+}
 
-function questionForLevel(level, f){
+const need = (fn, ...deps) => { fn.needs = deps; return fn; };
+
+function questionForLevel(level, f, revealed){
   const P=f.protagonist, obj=f.objName, who=f.companion;
   const gens = {
     Remember:[
@@ -1142,13 +1184,13 @@ function questionForLevel(level, f){
               {t:`Because the ${obj} was too heavy to carry.`}
             ]);
             return {q:`Why did ${P} decide to ${f.goal.short}?`, ...b, hint:`Think about what mattered most to ${P}.`};},
-      ()=>{const b=craft([
+      need(()=>{const b=craft([
               {t:`${cap(f.obstacle)} stood in the way.`, correct:true},
               {t:`${P} had forgotten what the goal was.`},
               {t:`The ${obj} disappeared at the start.`},
               {t:`Nobody wanted to help at all.`}
             ]);
-            return {q:`What was the main problem ${P} had to get past?`, ...b, hint:`It blocked the only path forward.`};},
+            return {q:`What was the main problem ${P} had to get past?`, ...b, hint:`It blocked the only path forward.`};}, 'obstacle'),
       ()=>{const b=craft([
               {t:`${cap(f.companion)} — they worked as a team.`, correct:true},
               {t:`A crowd of strangers ${P} never met.`},
@@ -1158,13 +1200,13 @@ function questionForLevel(level, f){
             return {q:`Who helped ${P} the most on the journey?`, ...b, hint:`They were with ${P} from the beginning.`};}
     ],
     Apply:[
-      ()=>{const b=craft([
+      need(()=>{const b=craft([
               {t:`Stay calm, look carefully, and make a step-by-step plan like ${P} did.`, correct:true},
               {t:`Panic and give up right away.`},
               {t:`Ignore the problem and hope it disappears.`},
               {t:`Blame someone else and walk home.`}
             ]);
-            return {q:`If YOU faced a problem like ${f.obstacle}, what would be the smartest first step?`, ...b, hint:`Think about what actually worked in the story.`};},
+            return {q:`If YOU faced a problem like ${f.obstacle}, what would be the smartest first step?`, ...b, hint:`Think about what actually worked in the story.`};}, 'obstacle'),
       ()=>{const b=craft([
               {t:`Ask a partner to help and combine your ideas.`, correct:true},
               {t:`Keep it a secret and struggle alone.`},
@@ -1181,13 +1223,13 @@ function questionForLevel(level, f){
             return {q:`What lesson from ${P} could help you finish something hard?`, ...b, hint:`${P} kept going by remembering the "why."`};}
     ],
     Analyze:[
-      ()=>{const b=craft([
+      need(()=>{const b=craft([
               {t:f.climaxKey+".", correct:true},
               {t:`The moment ${P} first woke up that morning.`},
               {t:`The moment the story's title appeared.`},
               {t:`The moment the ${obj} was put away for good.`}
             ]);
-            return {q:`Which event changed the story the MOST?`, ...b, hint:`Find the turning point where everything was decided.`};},
+            return {q:`Which event changed the story the MOST?`, ...b, hint:`Find the turning point where everything was decided.`};}, 'climax'),
       ()=>{const b=craft([
               {t:`It kept ${P} moving forward when things got hard.`, correct:true},
               {t:`It had no effect on the story at all.`},
@@ -1204,13 +1246,13 @@ function questionForLevel(level, f){
             return {q:`Which words BEST describe ${P}, based on ${P}'s actions?`, ...b, hint:`Judge by what ${P} did, not just felt.`};}
     ],
     Evaluate:[
-      ()=>{const b=craft([
+      need(()=>{const b=craft([
               {t:`Yes — the choice fit the story's lesson that ${f.theme}.`, correct:true},
               {t:`No — ${P} should have quit at the first problem.`},
               {t:`No — helping others is never worth the effort.`},
               {t:`Yes — but only because it required no courage.`}
             ]);
-            return {q:`Was ${P}'s final decision a GOOD one? Pick the best-supported answer.`, ...b, hint:`A strong answer connects to the story's message.`};},
+            return {q:`Was ${P}'s final decision a GOOD one? Pick the best-supported answer.`, ...b, hint:`A strong answer connects to the story's message.`};}, 'resolution'),
       ()=>{const b=craft([
               {t:`It was worth it, because the outcome helped others too.`, correct:true},
               {t:`It was a waste, because nothing changed.`},
@@ -1250,7 +1292,9 @@ function questionForLevel(level, f){
             return {q:`If you added ONE new character, which would improve the story most?`, ...b, hint:`Good new characters create meaningful conflict or growth.`};}
     ]
   };
-  const g = rand(gens[level]);
+  const pool = gens[level] || [];
+  const safe = revealed ? pool.filter(fn => !fn.needs || fn.needs.every(b=>revealed.has(b))) : pool;
+  const g = rand(safe.length ? safe : pool);
   const built = g();
   return {level, ...built};
 }
@@ -1261,18 +1305,20 @@ function buildFlow(story, grade){
   const levels=[];
   for(let i=0;i<=grade.bloomMax;i++) levels.push(BLOOM[i]);
   const usedQ=new Set();
+  const revealed=new Set();
   let cpCount=0;
   story.pages.forEach((pg,i)=>{
     flow.push({type:"page", page:pg, num:i+1, total:story.pages.length});
+    (pg.beats||[]).forEach(b=>revealed.add(b));
     const isLast = i===story.pages.length-1;
     if(!isLast){
       let q;
       if(story.curatedQuestions && story.curatedQuestions[cpCount]){
-        q = story.curatedQuestions[cpCount];   // hand-written, Bloom's-tagged
+        q = shuffleQuestionOptions(story.curatedQuestions[cpCount]);   // hand-written, Bloom's-tagged
       } else {
         const lvl = levels[Math.min(cpCount, levels.length-1)];
         let guard=0;
-        do{ q=questionForLevel(lvl, story.facts); guard++; }while(usedQ.has(q.q) && guard<8);
+        do{ q=questionForLevel(lvl, story.facts, revealed); guard++; }while(usedQ.has(q.q) && guard<8);
         usedQ.add(q.q);
       }
       flow.push({type:"check", q, cpIndex:cpCount});
@@ -1283,7 +1329,8 @@ function buildFlow(story, grade){
   const gram = GRAMMAR.build(story.facts, grade);
   if(gram.length){
     flow.push({type:"gramintro", gtotal:gram.length});
-    gram.forEach((g,i)=>flow.push({type:(g.type==="tap"?"gramtap":"gram"), item:g, gi:i, gtotal:gram.length}));
+    const gramStepType = t => t==="tap"?"gramtap" : t==="type"?"gramtype" : t==="match"?"grammatch" : "gram";
+    gram.forEach((g,i)=>flow.push({type:gramStepType(g.type), item:g, gi:i, gtotal:gram.length}));
   }
   return flow;
 }
@@ -1310,6 +1357,16 @@ const GRAMMAR=(()=>{
   }
   function tap(skill,instruction,words,correctIdx,hint){
     return {skill,type:"tap",instruction,words,correct:(Array.isArray(correctIdx)?correctIdx:[correctIdx]),hint};
+  }
+  // Free-typed answer. `accept` lists every spelling that counts as correct (case/whitespace-insensitive).
+  function typed(skill,q,answer,accept,hint){
+    return {skill,type:"type",q,answer,accept:(accept||[answer]),hint};
+  }
+  // Click-to-connect matching. pairs: [{l,r}, ...] canonical left/right pairing.
+  function match(skill,instruction,pairs,hint){
+    const left = pairs.map((p,i)=>({id:i,text:p.l}));
+    const right = shuffle(pairs.map((p,i)=>({id:i,text:p.r})));
+    return {skill,type:"match",instruction,left,right,hint};
   }
   // ----- individual skill generators (return one item) -----
   const G={
@@ -1372,14 +1429,29 @@ const GRAMMAR=(()=>{
     activeFix:(c)=>mc("Active Voice","Which sentence is written in the ACTIVE voice?",
       `${c.Name} opened the ${c.obj}.`,
       [`The ${c.obj} was opened by ${c.Name}.`,`The ${c.obj} had been opened.`,`The ${c.obj} was being opened.`],
-      "In the active voice, the subject performs the action.")
+      "In the active voice, the subject performs the action."),
+    pluralType:(c)=>typed("Plural Nouns",`Type the plural of “${c.noun}.”`,
+      c.noun+"s",[c.noun+"s"],"Most nouns become plural (more than one) by adding -s."),
+    verbPastType:(c)=>typed("Verb Tense",`Type the past-tense form of “${c.verb.b}.”`,
+      c.verb.ed,[c.verb.ed],"Most verbs become past tense by adding -ed."),
+    possType:(c)=>typed("Possessives",`Type the correct way to show the ${c.obj} belongs to ${c.Name}.`,
+      `${c.Name}'s ${c.obj}`,[`${c.Name}'s ${c.obj}`,`${c.Name}’s ${c.obj}`],
+      "A singular possessive adds apostrophe + s."),
+    capType:(c)=>typed("Capitalization & Punctuation",
+      `Type this sentence correctly, with a capital letter and end punctuation: “${c.lname} ran to the ${c.place}”`,
+      `${c.Name} ran to the ${c.place}.`,[`${c.Name} ran to the ${c.place}.`],
+      "Begin with a capital letter and end with a punctuation mark."),
+    posMatch:(c)=>match("Parts of Speech","Match each word to the part of speech it is.",
+      [{l:c.Name, r:"Noun (a person)"},{l:c.obj, r:"Noun (a thing)"},
+       {l:c.verbed, r:"Verb (an action)"},{l:c.adj, r:"Adjective (describes)"}],
+      "A noun names, a verb does, an adjective describes.")
   };
   const BANDS=[
-    ["capFix","endPunct","verbMC","nounTap"],
-    ["verbTap","adjMC","adjTap","pluralBlank","capFix","endPunct","nounTap"],
-    ["verbTap","adjMC","adverbMC","svAgree","tensePast","pluralBlank","endPunct","capFix"],
-    ["adverbMC","svAgree","tensePast","pronounBlank","possFix","commaFix","adjTap"],
-    ["svAgree","pronounBlank","possFix","commaFix","semicolonFix","parallelFix","activeFix","adverbMC"]
+    ["capFix","endPunct","verbMC","nounTap","posMatch"],
+    ["verbTap","adjMC","adjTap","pluralBlank","capFix","endPunct","nounTap","pluralType","posMatch"],
+    ["verbTap","adjMC","adverbMC","svAgree","tensePast","pluralBlank","endPunct","capFix","pluralType","verbPastType","posMatch"],
+    ["adverbMC","svAgree","tensePast","pronounBlank","possFix","commaFix","adjTap","verbPastType","possType","posMatch"],
+    ["svAgree","pronounBlank","possFix","commaFix","semicolonFix","parallelFix","activeFix","adverbMC","possType","capType","posMatch"]
   ];
   const COUNT=[2,3,3,4,4];
   function build(facts, grade){
@@ -2371,7 +2443,7 @@ function startStory(gid, opts){
   S.streak=0; S.bestStreak=0; S.startTime=Date.now();
   S.compFirst=0; S.gramFirst=0; S.storyCoins=0;
   S.totalQ=S.flow.filter(f=>f.type==="check").length;
-  S.grammarTotal=S.flow.filter(f=>f.type==="gram"||f.type==="gramtap").length;
+  S.grammarTotal=S.flow.filter(f=>f.type==="gram"||f.type==="gramtap"||f.type==="gramtype"||f.type==="grammatch").length;
   S.grammarCorrect=0;
   S.bloom={}; BLOOM.forEach(l=>S.bloom[l]={total:0,got:0});
   Audio.click(); renderStep();
@@ -2415,6 +2487,8 @@ function renderStep(){
   else if(step.type==="gramintro") renderGramIntro(step);
   else if(step.type==="gram") renderGram(step);
   else if(step.type==="gramtap") renderGramTap(step);
+  else if(step.type==="gramtype") renderGramType(step);
+  else if(step.type==="grammatch") renderGramMatch(step);
   // focus management for accessibility
   const h=root().querySelector("[data-focus]"); if(h) h.focus();
 }
@@ -2642,6 +2716,132 @@ function renderGramTap(step){
   $("#b-back").onclick=()=>{ if(S.idx>0){S.idx--;renderStep();} };
 }
 
+function renderGramType(step){
+  const it=step.item;
+  const norm = s => (s||"").trim().replace(/\s+/g," ").replace(/[’‘]/g,"'");
+  root().innerHTML=`
+  <div class="screen">
+    ${hud()}
+    <section class="card quiz-card" role="group" aria-label="Grammar typing challenge">
+      <div>
+        <span class="bloom-badge gram-badge">${ic('pencil')} Grammar</span>
+        <span class="checkpoint-label">${it.skill} • Challenge ${step.gi+1} of ${step.gtotal}</span>
+      </div>
+      <h2 class="q-text">${it.q}</h2>
+      <div class="type-row">
+        <input type="text" class="type-input" id="type-ans" tabindex="-1" data-focus autocomplete="off" spellcheck="false" aria-label="Type your answer" />
+        <button class="nav-btn next" id="type-submit">${ic('checkc')} Check</button>
+      </div>
+      <div class="hintbox" id="hint"><b>${ic('bulb')} Hint:</b> ${it.hint}</div>
+      <div class="feedback" id="fb" aria-live="assertive"></div>
+      <div class="quiz-foot">
+        <button class="nav-btn" id="b-back">${ic('arrowL')} Back</button>
+        <span class="pagenum">Grammar skill: ${it.skill} • Type the answer</span>
+      </div>
+    </section>
+  </div>`;
+  let solved=false, wrong=0;
+  const input=$("#type-ans"), btn=$("#type-submit");
+  function submit(){
+    if(solved || !input.value.trim()) return;
+    const val = norm(input.value);
+    const ok = it.accept.some(a=>norm(a)===val);
+    if(ok){
+      solved=true;
+      const firstTry=wrong===0;
+      recordGrammar(firstTry);
+      input.classList.add("correct"); input.disabled=true; btn.disabled=true;
+      const fb=$("#fb"); fb.className="feedback good";
+      fb.innerHTML=`${ic('checkc')} ${rand(firstTry?["Correct!","Nice spelling!","You've got it!"]:["Correct!","Got it!"])}`;
+      Audio.correct();
+      if(firstTry){ confetti.burst(120); toast(ic('pencil'),`+${firstTryXP()} XP • Grammar!`); } else { confetti.burst(70); toast(ic('sparkles'),"Got it! +"+partialXP()+" XP"); }
+      setTimeout(()=>advance(),1200);
+    } else {
+      wrong++; input.classList.add("wrong"); Audio.wrong();
+      const fb=$("#fb"); fb.className="feedback bad";
+      fb.innerHTML=`${ic('xc')} ${rand(["Not quite.","Try again.","Check your spelling and try again."])}`;
+      $("#hint").classList.add("show");
+      setTimeout(()=>input.classList.remove("wrong"),700);
+    }
+  }
+  btn.addEventListener("click",submit);
+  input.addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); submit(); } });
+  $("#b-back").onclick=()=>{ if(S.idx>0){S.idx--;renderStep();} };
+}
+
+function renderGramMatch(step){
+  const it=step.item;
+  const leftHtml = it.left.map((l,i)=>`<button class="match-item" data-i="${i}">${l.text}</button>`).join("");
+  const rightHtml = it.right.map((r,i)=>`<button class="match-item" data-i="${i}">${r.text}</button>`).join("");
+  root().innerHTML=`
+  <div class="screen">
+    ${hud()}
+    <section class="card quiz-card" role="group" aria-label="Grammar matching challenge">
+      <div>
+        <span class="bloom-badge gram-badge">${ic('pencil')} Grammar</span>
+        <span class="checkpoint-label">${it.skill} • Challenge ${step.gi+1} of ${step.gtotal}</span>
+      </div>
+      <h2 class="q-text" tabindex="-1" data-focus>${it.instruction}</h2>
+      <div class="match-wrap">
+        <div class="match-col" id="match-left">${leftHtml}</div>
+        <div class="match-col" id="match-right">${rightHtml}</div>
+      </div>
+      <div class="hintbox" id="hint"><b>${ic('bulb')} Hint:</b> ${it.hint}</div>
+      <div class="feedback" id="fb" aria-live="assertive"></div>
+      <div class="quiz-foot">
+        <button class="nav-btn" id="b-back">${ic('arrowL')} Back</button>
+        <span class="pagenum">Grammar skill: ${it.skill} • Match the pairs</span>
+      </div>
+    </section>
+  </div>`;
+  let wrong=0, matched=0;
+  let selL=null, selR=null;
+  const total=it.left.length;
+  const leftBtns=$$("#match-left .match-item"), rightBtns=$$("#match-right .match-item");
+  function tryMatch(){
+    if(selL==null || selR==null) return;
+    const bL=leftBtns[selL], bR=rightBtns[selR];
+    if(it.left[selL].id === it.right[selR].id){
+      bL.classList.remove("selected"); bR.classList.remove("selected");
+      bL.classList.add("matched"); bR.classList.add("matched");
+      bL.disabled=true; bR.disabled=true;
+      Audio.correct(); matched++;
+      selL=null; selR=null;
+      if(matched===total){
+        const firstTry=wrong===0;
+        recordGrammar(firstTry);
+        const fb=$("#fb"); fb.className="feedback good";
+        fb.innerHTML=`${ic('checkc')} ${rand(firstTry?["All matched!","Perfect match!","You've got it!"]:["All matched!","Nice work!"])}`;
+        if(firstTry){ confetti.burst(120); toast(ic('pencil'),`+${firstTryXP()} XP • Grammar!`); } else { confetti.burst(70); toast(ic('sparkles'),"Got it! +"+partialXP()+" XP"); }
+        setTimeout(()=>advance(),1200);
+      }
+    } else {
+      wrong++;
+      bL.classList.add("wrong"); bR.classList.add("wrong"); Audio.wrong();
+      const fb=$("#fb"); fb.className="feedback bad";
+      fb.innerHTML=`${ic('xc')} ${rand(["Not a match.","Try a different pair.","Look again!"])}`;
+      $("#hint").classList.add("show");
+      setTimeout(()=>{ bL.classList.remove("wrong","selected"); bR.classList.remove("wrong","selected"); },700);
+      selL=null; selR=null;
+    }
+  }
+  leftBtns.forEach((btn,i)=>btn.addEventListener("click",()=>{
+    if(btn.disabled) return;
+    if(selL===i){ btn.classList.remove("selected"); selL=null; return; }
+    if(selL!=null) leftBtns[selL].classList.remove("selected");
+    selL=i; btn.classList.add("selected");
+    tryMatch();
+  }));
+  rightBtns.forEach((btn,i)=>btn.addEventListener("click",()=>{
+    if(btn.disabled) return;
+    if(selR===i){ btn.classList.remove("selected"); selR=null; return; }
+    if(selR!=null) rightBtns[selR].classList.remove("selected");
+    selR=i; btn.classList.add("selected");
+    tryMatch();
+  }));
+  $("#b-back").onclick=()=>{ if(S.idx>0){S.idx--;renderStep();} };
+}
+
 function recordGrammar(firstTry){
   S.grammarCorrect++;
   const gained = firstTry?firstTryXP():partialXP();
@@ -2816,12 +3016,19 @@ function buildTeacherContent(){
     const lines=q.options.map((o,oi)=>`<div class="opt-line ${oi===q.correct?"ans":""}">${keyLetters[oi]}. ${o} ${oi===q.correct?ic('check')+" correct":""}</div>`).join("");
     return `<div class="akey"><div class="qh"><span class="bloom-badge bloom-${q.level}">${q.level}</span> Q${i+1}. ${q.q}</div>${lines}<div class="opt-line" style="margin-top:6px;color:var(--muted)">Hint given: ${q.hint}</div></div>`;
   }).join("");
-  const gramItems=S.flow.filter(x=>x.type==="gram"||x.type==="gramtap");
+  const gramItems=S.flow.filter(x=>x.type==="gram"||x.type==="gramtap"||x.type==="gramtype"||x.type==="grammatch");
   const gramKey=gramItems.map((c,i)=>{
     const it=c.item;
     if(it.type==="tap"){
       const line=it.words.map((w,wi)=>`<span class="${it.correct.includes(wi)?"ans":""}" style="${it.correct.includes(wi)?"font-weight:700;text-decoration:underline":""}">${w}</span>`).join(" ");
       return `<div class="akey"><div class="qh"><span class="bloom-badge gram-badge">${it.skill}</span> G${i+1}. ${it.instruction}</div><div class="opt-line">Sentence: ${line}.</div><div class="opt-line ans">Answer: the underlined word</div><div class="opt-line" style="margin-top:4px;color:var(--muted)">Hint: ${it.hint}</div></div>`;
+    }
+    if(it.type==="type"){
+      return `<div class="akey"><div class="qh"><span class="bloom-badge gram-badge">${it.skill}</span> G${i+1}. ${it.q}</div><div class="opt-line ans">Answer: ${it.answer}</div><div class="opt-line" style="margin-top:4px;color:var(--muted)">Hint: ${it.hint}</div></div>`;
+    }
+    if(it.type==="match"){
+      const lines=it.left.map(l=>`<div class="opt-line ans">${l.text} → ${it.right.find(r=>r.id===l.id).text}</div>`).join("");
+      return `<div class="akey"><div class="qh"><span class="bloom-badge gram-badge">${it.skill}</span> G${i+1}. ${it.instruction}</div>${lines}<div class="opt-line" style="margin-top:4px;color:var(--muted)">Hint: ${it.hint}</div></div>`;
     }
     const lines=it.options.map((o,oi)=>`<div class="opt-line ${oi===it.correct?"ans":""}">${keyLetters[oi]}. ${o} ${oi===it.correct?ic('check')+" correct":""}</div>`).join("");
     return `<div class="akey"><div class="qh"><span class="bloom-badge gram-badge">${it.skill}</span> G${i+1}. ${it.q}</div>${lines}<div class="opt-line" style="margin-top:4px;color:var(--muted)">Hint: ${it.hint}</div></div>`;
@@ -2924,11 +3131,18 @@ function buildPrintArea(){
     const q=c.q;
     return `<div style="margin:10px 0"><b>${i+1}. (${q.level})</b> ${q.q}<br>${q.options.map((o,oi)=>`${keyLetters[oi]}. ${o}`).join("&nbsp;&nbsp; ")}<br>Answer: _______</div>`;
   }).join("");
-  const gramItems=S.flow.filter(x=>x.type==="gram"||x.type==="gramtap");
+  const gramItems=S.flow.filter(x=>x.type==="gram"||x.type==="gramtap"||x.type==="gramtype"||x.type==="grammatch");
   const gs=gramItems.map((c,i)=>{
     const it=c.item;
     if(it.type==="tap"){
       return `<div style="margin:10px 0"><b>${i+1}. (${it.skill})</b> ${it.instruction}<br>“${it.words.join(" ")}.”<br>Circle the word: _______</div>`;
+    }
+    if(it.type==="type"){
+      return `<div style="margin:10px 0"><b>${i+1}. (${it.skill})</b> ${it.q}<br>Answer: _______</div>`;
+    }
+    if(it.type==="match"){
+      const rows=it.left.map(l=>`${l.text}: _______`).join("&nbsp;&nbsp; ");
+      return `<div style="margin:10px 0"><b>${i+1}. (${it.skill})</b> ${it.instruction}<br>${rows}</div>`;
     }
     return `<div style="margin:10px 0"><b>${i+1}. (${it.skill})</b> ${it.q}<br>${it.options.map((o,oi)=>`${keyLetters[oi]}. ${o}`).join("&nbsp;&nbsp; ")}<br>Answer: _______</div>`;
   }).join("");
