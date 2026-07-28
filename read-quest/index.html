@@ -379,6 +379,11 @@ body.hc .lvlbox{background:#1a1405}body.hc .lvlname,body.hc .lvlxp{color:var(--g
   font-family:var(--font-body);font-size:calc(18px*var(--readscale));line-height:1.75;
   margin:0 0 15px;color:var(--text);max-width:64ch;
 }
+.inline-check{
+  margin-top:22px;padding:20px 22px;border-radius:18px;
+  background:var(--blue-l);border:1.5px solid var(--line);
+}
+.inline-check .q-text{margin:10px 0 16px}
 .page-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:6px 30px 24px}
 .pagenum{font-family:var(--font-head);font-weight:800;color:var(--muted);font-size:14px}
 .navbtns{display:flex;gap:10px;flex-wrap:wrap}
@@ -696,11 +701,11 @@ function fillIcons(scope){ $$("[data-ic]",scope||document).forEach(el=>{ if(!el.
 // band: prose complexity tier 0..4 ; pages: reading pages ; bloomMax: highest Bloom index (0..5)
 const BLOOM = ["Remember","Understand","Apply","Analyze","Evaluate","Create"];
 const GRADES = [
-  {id:"K", label:"Kindergarten", lexile:"BR–230L", band:0, wmin:150,wmax:200, pages:3, bloomMax:1, xpPer:20},
-  {id:"1", label:"1st Grade", lexile:"190–530L", band:0, wmin:200,wmax:250, pages:3, bloomMax:1, xpPer:20},
-  {id:"2", label:"2nd Grade", lexile:"420–650L", band:1, wmin:250,wmax:350, pages:4, bloomMax:2, xpPer:25},
-  {id:"3", label:"3rd Grade", lexile:"520–820L", band:1, wmin:350,wmax:500, pages:5, bloomMax:3, xpPer:25},
-  {id:"4", label:"4th Grade", lexile:"740–940L", band:2, wmin:500,wmax:650, pages:5, bloomMax:3, xpPer:30},
+  {id:"K", label:"Kindergarten", lexile:"BR–230L", band:0, wmin:150,wmax:200, pages:4, bloomMax:1, xpPer:20},
+  {id:"1", label:"1st Grade", lexile:"190–530L", band:0, wmin:200,wmax:250, pages:4, bloomMax:1, xpPer:20},
+  {id:"2", label:"2nd Grade", lexile:"420–650L", band:1, wmin:250,wmax:350, pages:5, bloomMax:2, xpPer:25},
+  {id:"3", label:"3rd Grade", lexile:"520–820L", band:1, wmin:350,wmax:500, pages:6, bloomMax:3, xpPer:25},
+  {id:"4", label:"4th Grade", lexile:"740–940L", band:2, wmin:500,wmax:650, pages:6, bloomMax:3, xpPer:30},
   {id:"5", label:"5th Grade", lexile:"830–1010L", band:2, wmin:650,wmax:800, pages:6, bloomMax:4, xpPer:30},
   {id:"6", label:"6th Grade", lexile:"925–1070L", band:3, wmin:900,wmax:1050, pages:6, bloomMax:4, xpPer:35},
   {id:"7", label:"7th Grade", lexile:"970–1120L", band:3, wmin:1000,wmax:1150, pages:7, bloomMax:5, xpPer:35},
@@ -1308,11 +1313,10 @@ function buildFlow(story, grade){
   const revealed=new Set();
   let cpCount=0;
   story.pages.forEach((pg,i)=>{
-    flow.push({type:"page", page:pg, num:i+1, total:story.pages.length});
     (pg.beats||[]).forEach(b=>revealed.add(b));
     const isLast = i===story.pages.length-1;
+    let q=null, cpIndex=null;
     if(!isLast){
-      let q;
       if(story.curatedQuestions && story.curatedQuestions[cpCount]){
         q = shuffleQuestionOptions(story.curatedQuestions[cpCount]);   // hand-written, Bloom's-tagged
       } else {
@@ -1321,9 +1325,11 @@ function buildFlow(story, grade){
         do{ q=questionForLevel(lvl, story.facts, revealed); guard++; }while(usedQ.has(q.q) && guard<8);
         usedQ.add(q.q);
       }
-      flow.push({type:"check", q, cpIndex:cpCount});
+      cpIndex=cpCount;
       cpCount++;
     }
+    // The checkpoint question (if any) is answered inline on the same page as the story text.
+    flow.push({type:"page", page:pg, num:i+1, total:story.pages.length, q, cpIndex});
   });
   // ---- Grammar round (after the story, before results) ----
   const gram = GRAMMAR.build(story.facts, grade);
@@ -2436,7 +2442,7 @@ function startStory(gid, opts){
   S.idx=0; S.unlocked=0; S.xp=0; S.stars=0; S.correct=0; S.attempts=0;
   S.streak=0; S.bestStreak=0; S.startTime=Date.now();
   S.compFirst=0; S.gramFirst=0; S.storyCoins=0;
-  S.totalQ=S.flow.filter(f=>f.type==="check").length;
+  S.totalQ=S.flow.filter(f=>f.type==="page" && f.q).length;
   S.grammarTotal=S.flow.filter(f=>f.type==="gram"||f.type==="gramtap"||f.type==="gramtype"||f.type==="grammatch").length;
   S.grammarCorrect=0;
   S.bloom={}; BLOOM.forEach(l=>S.bloom[l]={total:0,got:0});
@@ -2477,7 +2483,6 @@ function renderStep(){
   setTopProgress(S.flow.length>1? (S.idx/(S.flow.length-1))*100 : 0);
   if(!step){ renderResults(); return; }
   if(step.type==="page") renderPage(step);
-  else if(step.type==="check") renderCheck(step);
   else if(step.type==="gramintro") renderGramIntro(step);
   else if(step.type==="gram") renderGram(step);
   else if(step.type==="gramtap") renderGramTap(step);
@@ -2488,9 +2493,24 @@ function renderStep(){
 }
 
 function renderPage(step){
-  const pg=step.page, f=S.story.facts;
+  const pg=step.page, f=S.story.facts, q=step.q;
   const first=S.idx===0;
   const paras=pg.paragraphs.map(p=>`<p>${p}</p>`).join("");
+  const keyLetters=["A","B","C","D"];
+  const checkHtml = !q ? "" : `
+    <div class="inline-check" id="inline-check" role="group" aria-label="Reading checkpoint">
+      <div>
+        <span class="bloom-badge bloom-${q.level}">${ic('brain')} ${q.level}</span>
+        <span class="checkpoint-label">Question ${step.cpIndex+1} of ${S.totalQ} • Answer to unlock the next page</span>
+      </div>
+      <h3 class="q-text">${q.q}</h3>
+      <div class="options">${q.options.map((o,i)=>`
+        <button class="opt" data-i="${i}" aria-label="Option ${keyLetters[i]}: ${o.replace(/"/g,'&quot;')}">
+          <span class="key" aria-hidden="true">${keyLetters[i]}</span><span>${o}</span>
+        </button>`).join("")}</div>
+      <div class="hintbox" id="hint"><b>${ic('bulb')} Hint:</b> ${q.hint}</div>
+      <div class="feedback" id="fb" aria-live="assertive"></div>
+    </div>`;
   root().innerHTML=`
   <div class="screen">
     ${hud()}
@@ -2500,6 +2520,7 @@ function renderPage(step){
         <div class="page-eyebrow">${pg.eyebrow} • ${f.genre}</div>
         <h2 class="page-title" tabindex="-1" data-focus>${first?f.title:pg.eyebrow}</h2>
         <div class="prose">${paras}</div>
+        ${checkHtml}
       </div>
       <div class="page-foot">
         <span class="pagenum">Page ${step.num} of ${step.total}</span>
@@ -2507,7 +2528,7 @@ function renderPage(step){
           <button class="nav-btn" id="b-home">${ic('home')} Home</button>
           <button class="nav-btn" id="b-again">${ic('refresh')} Read Again</button>
           <button class="nav-btn" id="b-prev" ${S.idx===0?"disabled":""}>${ic('arrowL')} Previous</button>
-          <button class="nav-btn next" id="b-next">${step.num===step.total?ic('check')+" Finish":"Next "+ic('arrowR')}</button>
+          <button class="nav-btn next" id="b-next" ${q?"disabled":""}>${step.num===step.total?ic('check')+" Finish":"Next "+ic('arrowR')}</button>
         </div>
       </div>
     </article>
@@ -2516,44 +2537,9 @@ function renderPage(step){
   $("#b-home").onclick=()=>{ if(confirmLeave()) renderHome(); };
   $("#b-again").onclick=()=>{ Audio.click(); narrateStop(); renderStep(); };
   $("#b-prev").onclick=()=>{ if(S.idx>0){ S.idx--; narrateStop(); renderStep(); } };
-  $("#b-next").onclick=()=>{ narrateStop(); advance(); };
-}
+  $("#b-next").onclick=()=>{ if($("#b-next").disabled) return; narrateStop(); advance(); };
 
-function narrateStop(){ if(narrating){speechSynthesis.cancel();narrating=false;setNarrateBtn(false);} }
-function confirmLeave(){ return true; }
-
-function advance(){
-  // moving forward from a page: allowed (next may be a checkpoint that gates further)
-  if(S.idx<S.flow.length-1){ S.idx++; S.unlocked=Math.max(S.unlocked,S.idx); Audio.click(); renderStep(); }
-  else renderResults();
-}
-
-function renderCheck(step){
-  const q=step.q, f=S.story.facts;
-  const keyLetters=["A","B","C","D"];
-  const opts=q.options.map((o,i)=>`
-    <button class="opt" data-i="${i}" aria-label="Option ${keyLetters[i]}: ${o.replace(/"/g,'&quot;')}">
-      <span class="key" aria-hidden="true">${keyLetters[i]}</span><span>${o}</span>
-    </button>`).join("");
-  root().innerHTML=`
-  <div class="screen">
-    ${hud()}
-    <section class="card quiz-card" role="group" aria-label="Reading checkpoint">
-      <div>
-        <span class="bloom-badge bloom-${q.level}">${ic('brain')} ${q.level}</span>
-        <span class="checkpoint-label">Checkpoint ${step.cpIndex+1} of ${S.totalQ} • Answer to unlock the next page</span>
-      </div>
-      <h2 class="q-text" tabindex="-1" data-focus>${q.q}</h2>
-      <div class="options">${opts}</div>
-      <div class="hintbox" id="hint"><b>${ic('bulb')} Hint:</b> ${q.hint}</div>
-      <div class="feedback" id="fb" aria-live="assertive"></div>
-      <div class="quiz-foot">
-        <button class="nav-btn" id="b-back">${ic('arrowL')} Reread Page</button>
-        <span class="pagenum">Bloom's level: ${q.level} (${BLOOM.indexOf(q.level)+1}/6)</span>
-      </div>
-    </section>
-  </div>`;
-  if(!S.bloom[q.level]._counted){ /* count once when first reached below */ }
+  if(!q) return;
   let solved=false, wrongCount=0;
   const buttons=$$(".opt");
   buttons.forEach(btn=>{
@@ -2573,7 +2559,7 @@ function renderCheck(step){
         Audio.correct();
         if(firstTry){ confetti.burst(150); toast(ic('star'),`+${firstTryXP()} XP • ${rand(["Great Job!","Correct!","Unlocked!"])}`); }
         else { confetti.burst(80); toast(ic('sparkles'),"Got it! +"+partialXP()+" XP"); }
-        setTimeout(()=>{ advance(); }, 1350);
+        const nb=$("#b-next"); if(nb) nb.disabled=false;
       } else {
         wrongCount++;
         btn.classList.add("wrong");
@@ -2582,11 +2568,18 @@ function renderCheck(step){
         fb.innerHTML=`${ic('xc')} ${rand(["Not quite.","Try again.","Almost — give it another go."])}`;
         $("#hint").classList.add("show");
         setTimeout(()=>{ btn.classList.remove("wrong"); btn.disabled=false; }, 900);
-        setTimeout(()=>btn.classList.remove("wrong"),700);
       }
     });
   });
-  $("#b-back").onclick=()=>{ if(S.idx>0){ S.idx--; renderStep(); } };
+}
+
+function narrateStop(){ if(narrating){speechSynthesis.cancel();narrating=false;setNarrateBtn(false);} }
+function confirmLeave(){ return true; }
+
+function advance(){
+  // moving forward from a page: allowed (next may be a checkpoint that gates further)
+  if(S.idx<S.flow.length-1){ S.idx++; S.unlocked=Math.max(S.unlocked,S.idx); Audio.click(); renderStep(); }
+  else renderResults();
 }
 
 /* ---------- Grammar round rendering ---------- */
@@ -3003,7 +2996,7 @@ function standardsFor(grade){
 function buildTeacherContent(){
   if(!S.story){ return `<p style="font-family:var(--font-body)">Start a story first, then open Teacher Mode to see the answer key, standards, vocabulary, and printable worksheet for that exact story.</p>`; }
   const f=S.story.facts, grade=S.grade;
-  const checks=S.flow.filter(x=>x.type==="check");
+  const checks=S.flow.filter(x=>x.type==="page" && x.q);
   const keyLetters=["A","B","C","D"];
   const answerKey=checks.map((c,i)=>{
     const q=c.q;
@@ -3119,7 +3112,7 @@ function buildPrintArea(){
   if(!S.story){ $("#print-area").innerHTML="<p>Start a story first.</p>"; return; }
   const f=S.story.facts, grade=S.grade;
   const storyHtml=S.story.pages.map((p,i)=>`<h3>Page ${i+1}</h3>${p.paragraphs.map(x=>`<p>${x}</p>`).join("")}`).join("");
-  const checks=S.flow.filter(x=>x.type==="check");
+  const checks=S.flow.filter(x=>x.type==="page" && x.q);
   const keyLetters=["A","B","C","D"];
   const qs=checks.map((c,i)=>{
     const q=c.q;
@@ -3225,8 +3218,11 @@ $("#btn-print").onclick=()=>{ buildPrintArea(); setTimeout(()=>window.print(),12
 
 $("#btn-narrate").onclick=()=>{
   const step=S.flow&&S.flow[S.idx];
-  if(step&&step.type==="page"){ narrate(step.page.paragraphs.join(" ")); }
-  else if(step&&step.type==="check"){ narrate(step.q.q+". "+step.q.options.join(", ")); }
+  if(step&&step.type==="page"){
+    let text=step.page.paragraphs.join(" ");
+    if(step.q) text+=" "+step.q.q+". "+step.q.options.join(", ");
+    narrate(text);
+  }
   else toast(ic('sound'),"Start a story to use narration");
 };
 function setMusicBtn(on){ const b=$("#btn-music"); b.classList.toggle("on",on); b.setAttribute("aria-pressed",on); }
@@ -3256,10 +3252,10 @@ document.addEventListener("keydown",e=>{
   const step=S.flow&&S.flow[S.idx];
   if(!step) return;
   if(step.type==="page"){
-    if(e.key==="ArrowRight"){ const n=$("#b-next"); if(n) n.click(); }
+    if(e.key==="ArrowRight"){ const n=$("#b-next"); if(n&&!n.disabled) n.click(); }
     if(e.key==="ArrowLeft"){ const p=$("#b-prev"); if(p&&!p.disabled) p.click(); }
   }
-  if((step.type==="check"||step.type==="gram") && /^[1-4]$/.test(e.key)){
+  if((step.type==="page"||step.type==="gram") && /^[1-4]$/.test(e.key)){
     const b=$$(".opt")[+e.key-1]; if(b&&!b.disabled) b.click();
   }
 });
