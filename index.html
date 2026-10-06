@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>S&A Learning Hub</title>
-<meta name="description" content="One home for ReadQuest, MathQuest Jungle, and Physics Quest.">
+<meta name="description" content="One home for ReadQuest, MathQuest Jungle, Physics Quest, and Reading Journal.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#0f1220; --card:#181c2e; --text:#f1f3fb; --muted:#a9adc4;
-    --read:#ff8fa3; --math:#6EEB83; --physics:#2D9CFF;
+    --read:#ff8fa3; --math:#6EEB83; --physics:#2D9CFF; --journal:#e6b86a;
   }
   *{box-sizing:border-box}
   body{
@@ -43,6 +43,7 @@
   .card.read::before{ background:var(--read); }
   .card.math::before{ background:var(--math); }
   .card.physics::before{ background:var(--physics); }
+  .card.journal::before{ background:var(--journal); }
   .card h2{ font-family:'Poppins',sans-serif; font-size:22px; margin:8px 0 10px; }
   .card p{ color:var(--muted); font-size:14px; line-height:1.5; margin:0; }
   .tag{
@@ -53,6 +54,7 @@
   .card.read .tag{ background:rgba(255,143,163,.15); color:var(--read); }
   .card.math .tag{ background:rgba(110,235,131,.15); color:var(--math); }
   .card.physics .tag{ background:rgba(45,156,255,.15); color:var(--physics); }
+  .card.journal .tag{ background:rgba(230,184,106,.15); color:var(--journal); }
   footer{ margin-top:56px; color:var(--muted); font-size:13px; }
 </style>
 </head>
@@ -77,6 +79,12 @@
       <span class="tag">Science</span>
       <h2>Physics Quest</h2>
       <p>An interactive academy teaching high school physics foundations through simulations and games.</p>
+    </a>
+
+    <a class="card journal" href="reading-journal/index.html">
+      <span class="tag">Journal</span>
+      <h2>Reading Journal</h2>
+      <p>A notebook-style journal with a custom cover, bookshelf, yearly reading log, and free-form pages with fonts, colors and images.</p>
     </a>
   </div>
 
